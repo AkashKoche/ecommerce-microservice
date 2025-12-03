@@ -1,0 +1,62 @@
+version: '3.8'
+services:
+  product-service:
+    build: ./product-service
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ecommerce
+      - DB_USER=postgre
+      - DB_PASSWORD=password
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  cart-service:
+    build: ./cart-service
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retiers: 3
+  api-gateay:
+    build: ./api/gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - product-service
+      - cart-service
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=ecommerce
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+    redis_data:
