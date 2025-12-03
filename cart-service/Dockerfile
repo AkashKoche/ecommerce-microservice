@@ -5,4 +5,4 @@ RUN npm ci --only=production
 COPY src/ ./src/
 EXPOSE 3001
 USER node
-CMD ["node", "src/servcer.js"]
+CMD ["node", "src/server.js"]
