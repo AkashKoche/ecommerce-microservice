@@ -1,0 +1,8 @@
+# Ignore dependency directories
+node_modules/
+# Terraform generated files
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
