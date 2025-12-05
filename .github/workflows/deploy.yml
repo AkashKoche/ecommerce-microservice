@@ -71,6 +71,11 @@ jobs:
         docker build -t $ECR_REGISTRY/cart-service:latest ./cart-service
         docker push $ECR_REGISTRY/cart-service:latest
 
+    - name : Build and push api-gateway
+      run: |
+        docker build -t $ECR_REGISTRY/api-gateway:latest ./api-gateway
+        docker push $ECR_REGISTRY/api-gateway:latest
+
 
   deploy:
     needs: build-and-push
@@ -88,5 +93,5 @@ jobs:
 
     - name: Deploy to EC2
       run: |
-        echo "Deployment commands would go here"
+        echo "docker-compose -f docker-compose.prod.yml up -d"
 
