@@ -1,0 +1,92 @@
+name: Deploy E-commerce Microservices
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [product-service, cart-service]
+
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.service }}/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ${{ matrix.service }}
+
+    - name: Run tests
+      run: npm test
+      working-directory: ${{ matrix.service }}
+
+    - name: Run tests
+      run: npm test
+      working-directory: ${{ matrix.service }}
+
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'ref/head/main'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: Login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push product-service
+      run: |
+        docker build -t $ECR_REGISTRY/product-service:latest ./product-service
+        docker push $ECR_REGISTRY/product-service:latest
+
+    - name: Build and push cart-service
+      run: |
+        docker build -t $ECR_REGISTRY/cart-service:latest ./cart-service
+        docker push $ECR_REGISTRY/cart-service:latest
+
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to EC2
+      run: |
+        echo "Deployment commands would go here"
+
