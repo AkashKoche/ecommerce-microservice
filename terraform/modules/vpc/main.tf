@@ -90,3 +90,37 @@ resource "aws_security_group" "ec2_sg" {
 
   tags = merge(local.common_tags, { Name = "${var.name}-ec2-sg" })
 }
+
+
+resource "aws_eip" "nat" {
+  count  = length(var.private_subnet_cidrs)
+  domain = "vpc"
+  tags   = merge(local.common_tags, { Name = "${var.name}-nat-eip-${count.index}" })
+}
+
+resource "aws_nat_gateway" "main" {
+  count         = length(var.private_subnet_cidrs)
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = values(aws_subnet.public)[count.index].id
+
+  tags = merge(local.common_tags, { Name = "${var.name}-nat-gw-${count.index}" })
+  depends_on = [aws_internet_gateway.main]
+}
+
+resource "aws_route_table" "private" {
+  count = length(var.private_subnet_cidrs)
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main[count.index].id
+  }
+
+  tags = merge(local.common_tags, { Name = "${var.name}-private-rt-${count.index}" })
+}
+
+resource "aws_route_table_association" "private" {
+  count        = length(var.private_subnet_cidrs)
+  subnet_id    = values(aws_subnet.private)[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
+}

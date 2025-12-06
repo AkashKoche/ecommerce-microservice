@@ -4,6 +4,11 @@ variable "db_password" {
   sensitive     = true
 }
 
+variable "aws_account_id" {
+  description = "Your AWS Account ID, needed to form the ECR repository URL."
+  type        = string
+}
+
 variable "private_subnet_cidrs" {
   description = "A list of CIDR blocks for the private subnets."
   type        = list(string)
