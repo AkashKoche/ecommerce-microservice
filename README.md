@@ -371,4 +371,4 @@ Perfect for demonstrating capabilities to potential employers at FAANG, IBM, Del
 
 ⭐ If you find this project helpful, please give it a star! ⭐
 
-Built with ❤️ by Akash Koche | ![Alt text](https://www.linkedin.com/in/akash-koche/) |
+Built with ❤️ by Akash Koche | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/akash-koche/) |
