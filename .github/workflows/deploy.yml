@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [product-service, cart-service]
+        service: [product-service, cart-service, api-gateway]
 
 
     steps:
@@ -37,15 +37,11 @@ jobs:
       run: npm test
       working-directory: ${{ matrix.service }}
 
-    - name: Run tests
-      run: npm test
-      working-directory: ${{ matrix.service }}
-
 
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'ref/head/main'
+    if: github.ref == 'refs/head/main'
 
     steps:
     - uses: actions/checkout@v4
@@ -81,6 +77,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
 
+    env:
+      DEPLOY_DIR: /home/ec2-user/app
+      DOCKER_COMPOSE_PROD: "docker-compose.yml"
+
     steps:
     - uses: actions/checkout@v4
 
@@ -91,7 +91,22 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Deploy to EC2
-      run: |
-        echo "docker-compose -f docker-compose.prod.yml up -d"
+    - name: Deploy to EC2 via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
 
+        script: |
+          echo "Starting Deployment on EC2..."
+
+          cd ${{ env.DEPLOY_DIR }}
+
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+          docker compose -f ${{ env.DOCKER_COMPOSE_PROD }} pull
+
+          docker compose -f ${{ env.DOCKER_COMPOSE_PROD }} up -d --remove-orphans
+
+          echo "Deployment Successful."

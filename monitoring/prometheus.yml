@@ -15,4 +15,4 @@ scrape_configs:
   - job_name: 'api-gateway'
     static_configs:
       - targets: ['api-gateway:8080']
-    metrics_path: /health
+    metrics_path: /metrics
