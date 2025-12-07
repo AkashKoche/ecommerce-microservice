@@ -159,7 +159,7 @@ Health checks
 
 4. Start Monitoring Stack (Optional)
 
-# Start Prometheus and Grafana
+Start Prometheus and Grafana
 
     docker-compose -f docker-compose.monitoring.yml up -d
 
