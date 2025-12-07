@@ -9,7 +9,7 @@
 A production-ready, 3-tier microservice architecture for an e-commerce platform built with modern DevOps practices and deployed on AWS Free Tier.
 
 
-🚀 About Project
+# 🚀 About Project
 
 This project demonstrates a real-world e-commerce platform built using microservices architecture with production-grade DevOps practices. It's designed to showcase skills relevant to DevOps, Cloud, and SRE roles at top IT companies.
 
@@ -29,30 +29,31 @@ Key Features:
 
     ✅ Database-per-Service Design
 
-🏗️ Architecture
+# 🏗️ Architecture
 
+```mermaid
 graph TB
     subgraph "Presentation Tier"
         UA[User Browser]
         API[API Gateway/Nginx]
     end
-    
+
     subgraph "Application Tier"
         PS[Product Service<br/>Node.js+PostgreSQL]
         CS[Cart Service<br/>Node.js+Redis]
     end
-    
+
     subgraph "Data Tier"
         DB[(PostgreSQL<br/>AWS RDS)]
         RC[(Redis<br/>AWS ElastiCache)]
     end
-    
+
     subgraph "Infrastructure"
         EC2[AWS EC2]
         ALB[Application Load Balancer]
         ECR[ECR Container Registry]
     end
-    
+
     UA --> ALB
     ALB --> API
     API --> PS
@@ -60,8 +61,9 @@ graph TB
     PS --> DB
     CS --> RC
     EC2 --> ECR
+```
 
-🛠️ Technology Stack
+# 🛠️ Technology Stack
 Backend Services
 
     Node.js/Express - Lightweight and fast runtime
@@ -96,7 +98,7 @@ Development Tools
 
     Helmet - Security headers
 
-📦 Implementation
+# 📦 Implementation
 
 🚀 Quick Start
 Prerequisites
@@ -110,39 +112,39 @@ Prerequisites
 Step-by-Step Local Deployment
 1. Clone and Setup
 
-# Clone the repository
+Clone the repository
     git clone https://github.com/AkashKoche/ecommerce-microservices.git
     cd ecommerce-microservices
 
-# Create environment files
+Create environment files
     cp product-service/.env.example product-service/.env
     cp cart-service/.env.example cart-service/.env
 
 2. Start Services with Docker Compose
 
-# Build and start all services
+Build and start all services
     docker-compose up --build
 
-# Or run in detached mode
+Or run in detached mode
     docker-compose up -d
 
-# View logs
+View logs
     docker-compose logs -f
 
-# Check service status
+Check service status
     docker-compose ps
 
 3. Verify Services are Running
 
-# Test product service
+Test product service
     curl http://localhost:8080/products
 
-# Test cart service
+Test cart service
     curl -X POST http://localhost:8080/cart/user123/items \
       -H "Content-Type: application/json" \
       -d '{"productId": 1, "quantity": 2, "productName": "Laptop", "price": 999.99}'
 
-# Health checks
+Health checks
     curl http://localhost:8080/product-health
     curl http://localhost:8080/cart-health
 
@@ -151,31 +153,31 @@ Step-by-Step Local Deployment
 # Start Prometheus and Grafana
     docker-compose -f docker-compose.monitoring.yml up -d
 
-# Access monitoring dashboards:
-# Prometheus: 
+Access monitoring dashboards:
+Prometheus: 
     http://localhost:9090
-# Grafana: 
+Grafana: 
     http://localhost:3000 (admin/admin)
 
 5. Run Tests
 
-# Test product service
+Test product service
     cd product-service
     npm test
 
-# Test cart service
+Test cart service
     cd cart-service
     npm test
 
 6. Stop Services
 
-# Stop all services
+Stop all services
     docker-compose down
 
-# Stop with volumes (clears database)
+Stop with volumes (clears database)
     docker-compose down -v
 
-☁️ AWS Deployment
+# ☁️ AWS Deployment
 Prerequisites for AWS Deployment
 
     AWS Account with Free Tier eligibility
@@ -186,112 +188,96 @@ Prerequisites for AWS Deployment
 
 Step 1: Configure AWS Credentials
 
-# Install AWS CLI (if not installed)
-# For Ubuntu/Debian:
+Install AWS CLI (if not installed)
+For Ubuntu/Debian:
     sudo apt-get update && sudo apt-get install awscli
 
-# For macOS:
+For macOS:
     brew install awscli
 
-# Configure AWS CLI
+Configure AWS CLI
     aws configure
-# Enter your AWS Access Key, Secret Key, Region (us-east-1), and output format (json)
+Enter your AWS Access Key, Secret Key, Region (us-east-1), and output format (json)
 
 Step 2: Initialize Terraform
 
     cd terraform
 
-# Initialize Terraform
+Initialize Terraform
     terraform init
 
-# Plan the infrastructure
+Plan the infrastructure
     terraform plan -var="db_password=YourSecurePassword123"
 
-# Apply the configuration
+Apply the configuration
     terraform apply -var="db_password=YourSecurePassword123"
 
 Step 3: Build and Push Docker Images
 
-# Configure Docker for ECR
+Configure Docker for ECR
     aws ecr get-login-password --region us-east-1 | docker login \
       --username AWS \
       --password-stdin YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
-# Build and tag images
+Build and tag images
     docker build -t product-service ./product-service
     docker build -t cart-service ./cart-service
     docker build -t api-gateway ./api-gateway
 
-# Push to ECR
+Push to ECR
     docker tag product-service:latest YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/product-service:latest
     docker push YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/product-service:latest
-# Repeat for other services
+Repeat for other services
 
 Step 4: Deploy to EC2
 
-# SSH into EC2 instance
+SSH into EC2 instance
     ssh -i your-key.pem ec2-user@your-ec2-public-ip
 
-# Pull and run containers
+Pull and run containers
     docker-compose -f docker-compose.prod.yml up -d
 
 Step 5: Verify Deployment
 
-# Get ALB DNS name from Terraform output
+Get ALB DNS name from Terraform output
     terraform output alb_dns_name
 
-# Test the deployed application
+Test the deployed application
     curl http://YOUR_ALB_DNS/products
 
-📊 Monitoring
+# 📊 Monitoring
 Local Monitoring
 
-# Access monitoring tools:
-# Prometheus: 
+Access monitoring tools:
+Prometheus: 
     http://localhost:9090
-# Grafana: 
+Grafana: 
     http://localhost:3000
-# Default credentials: admin/admin
+Default credentials: admin/admin
 
-# Import pre-configured dashboards
-# 1. Go to Grafana -> Create -> Import
-# 2. Use dashboard IDs from monitoring/grafana-dashboards/
+Import pre-configured dashboards
+1. Go to Grafana -> Create -> Import
+2. Use dashboard IDs from monitoring/grafana-dashboards/
 
 AWS CloudWatch Setup
 
-# Enable detailed monitoring on EC2
-# Configure CloudWatch agent on EC2 instance
+Enable detailed monitoring on EC2
+Configure CloudWatch agent on EC2 instance
     sudo yum install -y amazon-cloudwatch-agent
     sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
 
-# Start CloudWatch agent
+Start CloudWatch agent
     sudo systemctl start amazon-cloudwatch-agent
 
-🔧 API Documentation
-Product Service Endpoints
-
-GET    /products                  # List all products
-GET    /products/{id}            # Get product by ID
-PATCH  /products/{id}/stock      # Update product stock
-GET    /health                   # Health check
-GET    /metrics                  # Prometheus metrics
-
-Cart Service Endpoints
-
-GET    /cart/{userId}            # Get user's cart
-POST   /cart/{userId}/items      # Add item to cart
-DELETE /cart/{userId}/items/{id} # Remove item from cart
-GET    /health                   # Health check
-
-🧪 Testing
+# 🧪 Testing
 Run All Tests
 
-# From root directory
+From root directory
     npm test --prefix product-service
     npm test --prefix cart-service
 
 
-📈 Performance Metrics
+# 📈 Performance Metrics
 
     Response Time: < 200ms (95th percentile)
 
@@ -301,7 +287,7 @@ Run All Tests
 
     Database Load: Reduced by 40% with Redis caching
 
-🤝 Contributing
+# 🤝 Contributing
 
     Fork the repository
 
@@ -313,7 +299,7 @@ Run All Tests
 
     Open a Pull Request
 
-Development Guidelines
+# Development Guidelines
 
     Follow existing code style
 
