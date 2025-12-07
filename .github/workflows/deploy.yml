@@ -34,7 +34,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/head/main'
+    if: github.event_name == 'push'
 
     env:
       AWS_REGION: us-east-1
