@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-
-env:
-  AWS_REGION: us-east-1
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -42,6 +37,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/head/main'
+
+    env:
+      AWS_REGION: us-east-1
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
     steps:
     - uses: actions/checkout@v4
@@ -78,6 +77,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      AWS_REGION: us-east-1
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
       DEPLOY_DIR: /home/ec2-user/app
       DOCKER_COMPOSE_PROD: "docker-compose.yml"
 
